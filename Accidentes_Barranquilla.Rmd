@@ -1,0 +1,202 @@
+---
+title: "Accidentalidad en la ciudad de Barranquilla"
+author: "Ronaldo Otero"
+date: "2023-09-9"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    smooth_scroll: true
+    theme: cerulean
+    highlight: kate
+    df_print: paged
+    code_folding: hide
+    number_sections: false
+---
+
+La tabla muestra cómo la población ha ido incrementando a lo largo de los años en la mayoría de estos países, y además, destaca que no hay una relación directa entre el tamaño del área del país y el crecimiento poblacional.
+
+La tabla proporciona una visión detallada de la población de diferentes naciones, lo que permite identificar patrones y tendencias en su crecimiento demográfico. Al señalar que la población no está directamente relacionada con el área, sugiere que factores adicionales, como la densidad de población, el desarrollo económico o la migración, podrían estar influyendo en el crecimiento poblacional de cada país.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = NA,
+  warning= FALSE,
+  message = FALSE,
+  fig.align='center'
+)
+
+```
+
+```{r librerias, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(plotly)
+library(janitor)
+library(zoo)
+library(hrbrthemes)
+```
+
+
+# Datos 
+
+```{r lectura del documento, warning=FALSE, message=FALSE, rows.print = 10}
+Acci_Barranquilla <- read_delim("Accidentalidad_en_Barranquilla.csv",delim = ";", 
+                             escape_double = FALSE, trim_ws = TRUE) %>% clean_names() %>%
+mutate(dia_accidente = ifelse(dia_accidente == "Lun", "Lunes", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Mar", "Martes", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Mié", "Miercoles", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Jue", "Jueves", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Vie", "Viernes", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Sáb", "Sabado", dia_accidente),
+                             dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente))
+head(Acci_Barranquilla, 10)
+```
+
+# Accidentes desde 2015 - 2023
+
+_Analisis de la población de Colombia(Rank 28) desde el año 2000 hasta el año 2022 comparado con India y North Korea(Rank 1 y 56)._
+
+```{r analisis poblacion, warning=FALSE, message=FALSE}
+accidentes_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente, clase_accidente) %>% 
+                                 group_by(ano_accidente) %>% 
+                                 summarise(cantidad_accidentes = n())
+
+acc_año_g <- ggplot(accidentes_año, aes(x = ano_accidente, y = cantidad_accidentes))+
+                    geom_line(color="#69b3a2")+
+                    geom_point(shape=21, color="white", fill="#69b3a2", size=3) +
+                    theme_ipsum() +
+                    ggtitle("Accidentes 2015 - 2023")+
+                    xlab("Años")+
+                    ylab("Cantidad de Accidentes")
+
+ggplotly(acc_año_g)
+
+```
+
+## Porcentaje de la gravedad de los accidentes 
+
+_Analisis de la poblacion de Colombia(Rank 28) desde el año 2000 hasta el año 2050 comparado con Argentina y Venezuela(Rank 33 y 52)._
+
+```{r analisis poblacion2, warning=FALSE, message=FALSE}
+heridos <- Acci_Barranquilla %>% select(gravedad_accidente) %>% 
+  group_by(gravedad_accidente) %>% 
+  summarise(cantidad = n(), porcentaje = (cantidad/43205 * 100))
+
+heridos_g <- ggplot(heridos, aes(x = "", y = porcentaje , fill = gravedad_accidente))+
+  geom_bar(stat = "identity", color = "white")+
+  theme_ipsum()
+
+
+ggplotly(heridos_g)
+```
+
+# Nuemero de accidentes por gravedad en los años
+
+```{r}
+num_heridos_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente) %>% 
+                                         group_by(ano_accidente, gravedad_accidente) %>% 
+                                         summarise( n = n())
+
+acc_her_año_g <- ggplot(num_heridos_año, aes(x = ano_accidente, y = n , color = gravedad_accidente))+
+  geom_line()+
+  geom_point()+
+  theme_ipsum()
+ggplotly(acc_her_año_g)
+```
+
+# Numero de accidentes por clase desde 2015
+
+```{r}
+num_clase_año <- Acci_Barranquilla %>% select(ano_accidente, clase_accidente) %>% 
+  group_by(ano_accidente, clase_accidente) %>% 
+  summarise( n = n())
+
+acc_clase_año_g <- ggplot(num_clase_año, aes(x = ano_accidente, y = n , color = clase_accidente))+
+  geom_line()+
+  geom_point()+
+  theme_ipsum()
+
+ggplotly(acc_clase_año_g)
+```
+
+# Cantidad de accidentes por mes del año 2022
+
+```{r}
+can_acc_mes_22 <- Acci_Barranquilla %>% 
+                  select(ano_accidente, mes_accidente) %>%
+                  group_by(ano_accidente, mes_accidente) %>% 
+                  summarise(cantidad = n()) %>% 
+                  filter(ano_accidente == 2022) %>% 
+                  arrange(mes_accidente)
+#ordenar meses del año
+can_acc_mes_22$mes_accidente <- factor(can_acc_mes_22$mes_accidente, levels = c("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre")) 
+
+can_acc_mes_22_g <- ggplot(can_acc_mes_22, aes( x = mes_accidente, y = cantidad, fill = mes_accidente))+
+  geom_bar(stat = "identity", width=0.5)+
+  theme(legend.position="none")+
+  theme_ipsum() +
+  theme(
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    legend.position="none",
+    axis.text.x = element_text(angle = 80, hjust=1))+
+  xlab("")+
+  ylab("Cantidad")
+
+ggplotly(can_acc_mes_22_g)
+```
+
+# Numero de accidentes por dias de la semana 
+
+```{r}
+acc_sem <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
+                                 group_by(dia_accidente) %>% 
+                                 summarise( cantidad = n()) 
+
+acc_sem$dia_accidente <- factor(acc_sem$dia_accidente, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"))
+
+acc_sem_g <- ggplot(acc_sem, aes(x = dia_accidente, y = cantidad , fill = dia_accidente))+
+                      geom_bar(stat = "identity", width=0.5)+
+  theme(legend.position="none")+
+  theme_ipsum()+
+  theme(
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    legend.position="none")+
+  xlab("")+
+  ylab("Cantidad")+
+  coord_flip()
+
+ggplotly(acc_sem_g)
+```
+
+# Numero de accidentes en dias de la semana por año(desde el año 2015 - 2023)
+
+```{r}
+acc_sem_año <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
+  group_by(ano_accidente, dia_accidente) %>% 
+  summarise( cantidad = n())
+#ordenar los dias de la semana
+acc_sem_año$dia_accidente <- factor(acc_sem_año$dia_accidente, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo")) 
+
+acc_sem_año_g <- ggplot(acc_sem_año, aes(x = ano_accidente, y = cantidad , color = dia_accidente))+
+  geom_line()+
+  geom_point()+
+  theme_ipsum()+
+  ylab("")+
+  xlab("Año")
+  #facet_wrap(~dia_accidente, scale="free_y")
+
+ggplotly(acc_sem_año_g) 
+
+# grafica montada
+acc_sem_año_g2 <- ggplot(acc_sem_año, aes(x = ano_accidente, y = cantidad , fill = dia_accidente, text = dia_accidente))+
+  geom_area()+
+  theme_ipsum()
+  #facet_wrap(~dia_accidente, scale="free_y")
+
+ggplotly(acc_sem_año_g2, tooltip="text") 
+```
+
