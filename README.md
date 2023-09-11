@@ -40,11 +40,11 @@ Si deseas contribuir a este proyecto:
 
 ## Imagenes
 
-[Captura-de-pantalla-186-1.png](https://postimg.cc/2qfSMJr4)
-[Captura-de-pantalla-187-2.png](https://postimg.cc/d74c6S1Q)
-[Captura-de-pantalla-188-3.png](https://postimg.cc/CnfyFh4d)
-[Captura-de-pantalla-189-4.png](https://postimg.cc/Yv7cHwLq)
-[Captura-de-pantalla-190-5.png](https://postimg.cc/8Fkq7Bb2)
-[Captura-de-pantalla-191-1.png](https://postimg.cc/vxnKJPQV)
-[Captura-de-pantalla-192-2.png](https://postimg.cc/KRnVQspX)
-[Captura-de-pantalla-193-3.png](https://postimg.cc/XZvzjNj3)
+[![Captura-de-pantalla-186-1.png](https://i.postimg.cc/9fDwR5kN/Captura-de-pantalla-186-1.png)](https://postimg.cc/2qfSMJr4)
+[![Captura-de-pantalla-187-2.png](https://i.postimg.cc/gJPcYCbh/Captura-de-pantalla-187-2.png)](https://postimg.cc/d74c6S1Q)
+[![Captura-de-pantalla-188-3.png](https://i.postimg.cc/wMw9Q3y5/Captura-de-pantalla-188-3.png)](https://postimg.cc/CnfyFh4d)
+[![Captura-de-pantalla-189-4.png](https://i.postimg.cc/W1Fs0N2r/Captura-de-pantalla-189-4.png)](https://postimg.cc/Yv7cHwLq)
+[![Captura-de-pantalla-190-5.png](https://i.postimg.cc/MG1xr9fp/Captura-de-pantalla-190-5.png)](https://postimg.cc/8Fkq7Bb2)
+[![Captura-de-pantalla-191-1.png](https://i.postimg.cc/qqDdCYSj/Captura-de-pantalla-191-1.png)](https://postimg.cc/vxnKJPQV)
+[![Captura-de-pantalla-192-2.png](https://i.postimg.cc/qMYTJP87/Captura-de-pantalla-192-2.png)](https://postimg.cc/KRnVQspX)
+[![Captura-de-pantalla-193-3.png](https://i.postimg.cc/TPjMchBy/Captura-de-pantalla-193-3.png)](https://postimg.cc/XZvzjNj3)
