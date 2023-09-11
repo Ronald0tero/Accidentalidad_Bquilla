@@ -15,9 +15,16 @@ Acci_Barranquilla <- read_delim("Mi carpeta/SQL_Rstudio_Ronaldo/Proyectos R/Acci
          dia_accidente = ifelse(dia_accidente == "Jue", "Jueves", dia_accidente),
          dia_accidente = ifelse(dia_accidente == "Vie", "Viernes", dia_accidente),
          dia_accidente = ifelse(dia_accidente == "Sáb", "Sabado", dia_accidente),
-         dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente))
+         dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente)) %>% rename( direccion_accidente = sitio_exacto_accidente)
 
 glimpse(Acci_Barranquilla)
+
+unique(Acci_Barranquilla$direccion_accidente)
+
+cambios = c('CALLE'='CLL','CLLE'='CLL','calle'='CLL', "CON"= " ", "con"= " ","clle"= "CLL","cll"= "CLL","clle"= "CLL","Calle"= "CLL","CL"= "CLL","cl"="CLL", "CLLL" = "Calle", "CalleL"= "Calle","cCalle" = "Calle",
+            "Cr" = "Carrera","CARRERA" = "Carrera","cr" = "Carrera","Cra" = "Carrera","CR" = "Carrera","cr" = "","CRA" = "Carrera","cra" = "Carrera","crra" = "Carrera","CAR" = "Carrera","CarreraA" = "Carrera","Carreraa" = "Carrera")
+
+Acci_Barranquilla$direccion_accidente <-  str_replace_all(Acci_Barranquilla$direccion_accidente, cambios)
 
 #accidentes desde 2015 - 2023
 
@@ -146,3 +153,24 @@ acc_sem_año_g2 <- ggplot(acc_sem_año2, aes(x = ano_accidente, y = cantidad , f
   #facet_wrap(~dia_accidente, scale="free_y")
 
 ggplotly(acc_sem_año_g2) 
+
+#mapa
+
+
+
+
+fig <- Acci_Barranquilla
+fig <- fig %>%
+  plot_ly(
+    lat = ~cant_muertos_en_sitio_accidente,
+    lon = ~cant_heridos_en_sitio_accidente,
+    marker = list(color = "fuchsia"),
+    type = 'scattermapbox' )
+fig <- fig %>%
+  layout(
+    mapbox = list(
+      style = 'open-street-map',
+      zoom =10,
+      center = list(lon = -74.8062, lat = 10.9919))) 
+
+fig

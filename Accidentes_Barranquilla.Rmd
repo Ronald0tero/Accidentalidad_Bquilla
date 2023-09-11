@@ -28,18 +28,19 @@ knitr::opts_chunk$set(
 
 ```
 
-```{r librerias, warning=FALSE, message=FALSE}
+```{r librerias, warning=FALSE, message=FALSE, echo = FALSE}
 library(tidyverse)
 library(plotly)
 library(janitor)
 library(zoo)
 library(hrbrthemes)
+library(reactable)
 ```
 
 
 # Datos 
 
-```{r lectura del documento, warning=FALSE, message=FALSE, rows.print = 10}
+```{r lectura del documento, warning=FALSE, message=FALSE, rows.print = 10, echo = FALSE}
 Acci_Barranquilla <- read_delim("Accidentalidad_en_Barranquilla.csv",delim = ";", 
                              escape_double = FALSE, trim_ws = TRUE) %>% clean_names() %>%
 mutate(dia_accidente = ifelse (dia_accidente == "Lun", "Lunes", dia_accidente),
@@ -49,12 +50,34 @@ mutate(dia_accidente = ifelse (dia_accidente == "Lun", "Lunes", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Vie", "Viernes", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Sáb", "Sabado", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente))
-Acci_Barranquilla
+
+reactable(Acci_Barranquilla,filterable = TRUE,defaultPageSize = 5)
 ```
+
+## Mapa de Barranquilla
+
+```{r mapa, echo = FALSE}
+fig <- Acci_Barranquilla
+fig <- fig %>%
+  plot_ly(
+    lat = ~cant_muertos_en_sitio_accidente,
+    lon = ~cant_muertos_en_sitio_accidente,
+    marker = list(color = "fuchsia"),
+    type = 'scattermapbox' )
+fig <- fig %>%
+  layout(
+    mapbox = list(
+      style = 'open-street-map',
+      zoom =10,
+      center = list(lon = -74.8062, lat = 10.9919))) 
+
+fig
+```
+
 
 # Accidentes desde 2015 - 2023
 
-```{r analisis poblacion, warning=FALSE, message=FALSE}
+```{r analisis poblacion, warning=FALSE, message=FALSE, , echo = FALSE}
 accidentes_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente, clase_accidente) %>% 
                                  group_by(ano_accidente) %>% 
                                  summarise(cantidad_accidentes = n())
@@ -71,17 +94,18 @@ ggplotly(acc_año_g)
 
 ```
 
-## Porcentaje de la gravedad de los accidentes 
+# Porcentaje de la gravedad de los accidentes 
 
 
-```{r analisis poblacion2, warning=FALSE, message=FALSE}
+```{r analisis poblacion2, warning=FALSE, message=FALSE, echo = FALSE}
 heridos <- Acci_Barranquilla %>% select(gravedad_accidente) %>% 
   group_by(gravedad_accidente) %>% 
-  summarise(cantidad = n(), porcentaje = (cantidad/43205 * 100))
+  summarise(cantidad = n(), porcentaje = signif((cantidad/43205 * 100), digits = 3))
 
 heridos_g <- ggplot(heridos, aes(x = "", y = porcentaje , fill = gravedad_accidente))+
   geom_bar(stat = "identity", color = "white")+
-  theme_ipsum()
+  theme_ipsum()+
+  ylab("Porcentajes")
 
 
 ggplotly(heridos_g)
@@ -89,7 +113,7 @@ ggplotly(heridos_g)
 
 # Nuemero de accidentes por gravedad en los años
 
-```{r}
+```{r, echo = FALSE}
 num_heridos_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente) %>% 
                                          group_by(ano_accidente, gravedad_accidente) %>% 
                                          summarise( n = n())
@@ -97,13 +121,17 @@ num_heridos_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_acciden
 acc_her_año_g <- ggplot(num_heridos_año, aes(x = ano_accidente, y = n , color = gravedad_accidente))+
   geom_line()+
   geom_point()+
-  theme_ipsum()
+  theme_ipsum()+
+  xlab("Años")+
+  ylab("Cantidad Accidente(n)")+
+  labs(color = "Gravedad")
+  
 ggplotly(acc_her_año_g)
 ```
 
 # Numero de accidentes por clase desde 2015
 
-```{r}
+```{r , echo = FALSE}
 num_clase_año <- Acci_Barranquilla %>% select(ano_accidente, clase_accidente) %>% 
   group_by(ano_accidente, clase_accidente) %>% 
   summarise( n = n())
@@ -111,14 +139,17 @@ num_clase_año <- Acci_Barranquilla %>% select(ano_accidente, clase_accidente) %
 acc_clase_año_g <- ggplot(num_clase_año, aes(x = ano_accidente, y = n , color = clase_accidente))+
   geom_line()+
   geom_point()+
-  theme_ipsum()
+  theme_ipsum()+
+  xlab("Años")+
+  ylab("Cantidad Accidente(n)")+
+  labs(color = "Clase")
 
 ggplotly(acc_clase_año_g)
 ```
 
 # Cantidad de accidentes por mes del año 2022
 
-```{r}
+```{r, echo = FALSE}
 can_acc_mes_22 <- Acci_Barranquilla %>% 
                   select(ano_accidente, mes_accidente) %>%
                   group_by(ano_accidente, mes_accidente) %>% 
@@ -145,7 +176,7 @@ ggplotly(can_acc_mes_22_g)
 
 # Numero de accidentes por dias de la semana 
 
-```{r}
+```{r, echo = FALSE}
 acc_sem <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
                                  group_by(dia_accidente) %>% 
                                  summarise( cantidad = n()) 
@@ -169,7 +200,7 @@ ggplotly(acc_sem_g)
 
 # Numero de accidentes en dias de la semana por año(desde el año 2015 - 2023)
 
-```{r}
+```{r, echo = FALSE}
 acc_sem_año <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
   group_by(ano_accidente, dia_accidente) %>% 
   summarise( cantidad = n())
@@ -181,10 +212,19 @@ acc_sem_año_g <- ggplot(acc_sem_año, aes(x = ano_accidente, y = cantidad , col
   geom_point()+
   theme_ipsum()+
   ylab("")+
-  xlab("Año")
+  xlab("Año")+
+  labs(color = "  Días")
   #facet_wrap(~dia_accidente, scale="free_y")
 
 ggplotly(acc_sem_año_g) 
 
 ```
 
+# Conclusiones
+
+>* Se puede resaltar que, aunque hubo un aumento de accidentes en el año 2021, en general la tendencia ha sido a la disminución de los accidentes a lo largo del tiempo.
+>* La mayoria de los accidentes solo han sufrido daños con un 74.6% y con un 24.6% solo heridos. mientras solo un 7.3% han sido con al menos una persona fallecida.
+>* En el año 2022 la cantidad de accidentes con solo daños y con heridos fue muy similar con 1883 y 1752 accidentes respectivamente.
+>* La mayor parte de los accidentas han sido por choques.
+>* En el año 2022, de agosto hasta diciembre fueron los meses del año con menos accidentes.
+>* Se destaca que los domingos son el día de la semana con menos accidentes en Barranquilla desde el 2015.
