@@ -8,8 +8,7 @@ Este documento Markdown contiene el análisis de la base de datos de accidentali
 2. Instalación
 3. Uso
 4. Contribución
-5. Créditos
-6. Licencia
+5. imagenes
 
 ## Requisitos
 
@@ -38,3 +37,14 @@ Si deseas contribuir a este proyecto:
 1. Haz un fork del repositorio.
 2. Realiza tus cambios o mejoras.
 3. Crea un pull request explicando tus modificaciones.
+
+## Imagenes
+
+[Captura-de-pantalla-186-1.png](https://postimg.cc/2qfSMJr4)
+[Captura-de-pantalla-187-2.png](https://postimg.cc/d74c6S1Q)
+[Captura-de-pantalla-188-3.png](https://postimg.cc/CnfyFh4d)
+[Captura-de-pantalla-189-4.png](https://postimg.cc/Yv7cHwLq)
+[Captura-de-pantalla-190-5.png](https://postimg.cc/8Fkq7Bb2)
+[Captura-de-pantalla-191-1.png](https://postimg.cc/vxnKJPQV)
+[Captura-de-pantalla-192-2.png](https://postimg.cc/KRnVQspX)
+[Captura-de-pantalla-193-3.png](https://postimg.cc/XZvzjNj3)
