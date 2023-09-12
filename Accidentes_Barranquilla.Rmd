@@ -42,14 +42,18 @@ library(reactable)
 
 ```{r lectura del documento, warning=FALSE, message=FALSE, rows.print = 10, echo = FALSE}
 Acci_Barranquilla <- read_delim("Accidentalidad_en_Barranquilla.csv",delim = ";", 
-                             escape_double = FALSE, trim_ws = TRUE) %>% clean_names() %>%
+                       escape_double = FALSE, trim_ws = TRUE) %>% clean_names() %>%
+                       select(- 11,-10,-9) %>% 
 mutate(dia_accidente = ifelse (dia_accidente == "Lun", "Lunes", dia_accidente),
-                            dia_accidente = ifelse(dia_accidente == "Mar", "Martes", dia_accidente),
-                            dia_accidente = ifelse(dia_accidente == "Mié", "Miercoles", dia_accidente),
+                           dia_accidente = ifelse(dia_accidente == "Mar", "Martes", dia_accidente),
+                           dia_accidente = ifelse(dia_accidente == "Mié", "Miercoles", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Jue", "Jueves", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Vie", "Viernes", dia_accidente),
                            dia_accidente = ifelse(dia_accidente == "Sáb", "Sabado", dia_accidente),
-                           dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente))
+                           dia_accidente = ifelse(dia_accidente == "Dom", "Domingo", dia_accidente))%>%                        rename(fecha = fecha_accidente, año = ano_accidente, mes = mes_accidente, 
+                               dia = dia_accidente,hora = hora_accidente, 
+                               gravedad = gravedad_accidente, clase = clase_accidente, 
+                               sitio= sitio_exacto_accidente)
 
 reactable(Acci_Barranquilla,filterable = TRUE,defaultPageSize = 5)
 ```
@@ -60,8 +64,8 @@ reactable(Acci_Barranquilla,filterable = TRUE,defaultPageSize = 5)
 fig <- Acci_Barranquilla
 fig <- fig %>%
   plot_ly(
-    lat = ~cant_muertos_en_sitio_accidente,
-    lon = ~cant_muertos_en_sitio_accidente,
+    lat = ~año,
+    lon = ~año,
     marker = list(color = "fuchsia"),
     type = 'scattermapbox' )
 fig <- fig %>%
@@ -78,11 +82,11 @@ fig
 # Accidentes desde 2015 - 2023
 
 ```{r analisis poblacion, warning=FALSE, message=FALSE, , echo = FALSE}
-accidentes_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente, clase_accidente) %>% 
-                                 group_by(ano_accidente) %>% 
-                                 summarise(cantidad_accidentes = n())
+accidentes_año <- Acci_Barranquilla %>% select(año, gravedad, clase) %>% 
+                                 group_by(año) %>% 
+                                 summarise(cantidad = n())
 
-acc_año_g <- ggplot(accidentes_año, aes(x = ano_accidente, y = cantidad_accidentes))+
+acc_año_g <- ggplot(accidentes_año, aes(x = año, y = cantidad))+
                     geom_line(color="deepskyblue3")+
                     geom_point(shape=21, color="white", fill="deepskyblue3", size=3) +
                     theme_ipsum() +
@@ -98,11 +102,11 @@ ggplotly(acc_año_g)
 
 
 ```{r analisis poblacion2, warning=FALSE, message=FALSE, echo = FALSE}
-heridos <- Acci_Barranquilla %>% select(gravedad_accidente) %>% 
-  group_by(gravedad_accidente) %>% 
+heridos <- Acci_Barranquilla %>% select(gravedad) %>% 
+  group_by(gravedad) %>% 
   summarise(cantidad = n(), porcentaje = signif((cantidad/43205 * 100), digits = 3))
 
-heridos_g <- ggplot(heridos, aes(x = "", y = porcentaje , fill = gravedad_accidente))+
+heridos_g <- ggplot(heridos, aes(x = "", y = porcentaje , fill = gravedad))+
   geom_bar(stat = "identity", color = "white")+
   theme_ipsum()+
   ylab("Porcentajes")
@@ -114,16 +118,16 @@ ggplotly(heridos_g)
 # Nuemero de accidentes por gravedad en los años
 
 ```{r, echo = FALSE}
-num_heridos_año <- Acci_Barranquilla %>% select(ano_accidente, gravedad_accidente) %>% 
-                                         group_by(ano_accidente, gravedad_accidente) %>% 
-                                         summarise( n = n())
+num_heridos_año <- Acci_Barranquilla %>% select(año, gravedad) %>% 
+                                         group_by(año, gravedad) %>% 
+                                         summarise( cantidad = n())
 
-acc_her_año_g <- ggplot(num_heridos_año, aes(x = ano_accidente, y = n , color = gravedad_accidente))+
+acc_her_año_g <- ggplot(num_heridos_año, aes(x = año, y = cantidad , color = gravedad))+
   geom_line()+
   geom_point()+
   theme_ipsum()+
   xlab("Años")+
-  ylab("Cantidad Accidente(n)")+
+  ylab("Cantidad Accidente")+
   labs(color = "Gravedad")
   
 ggplotly(acc_her_año_g)
@@ -132,16 +136,16 @@ ggplotly(acc_her_año_g)
 # Numero de accidentes por clase desde 2015
 
 ```{r , echo = FALSE}
-num_clase_año <- Acci_Barranquilla %>% select(ano_accidente, clase_accidente) %>% 
-  group_by(ano_accidente, clase_accidente) %>% 
-  summarise( n = n())
+num_clase_año <- Acci_Barranquilla %>% select(año, clase) %>% 
+  group_by(año, clase) %>% 
+  summarise( cantidad = n())
 
-acc_clase_año_g <- ggplot(num_clase_año, aes(x = ano_accidente, y = n , color = clase_accidente))+
+acc_clase_año_g <- ggplot(num_clase_año, aes(x = año, y = cantidad , color = clase))+
   geom_line()+
   geom_point()+
   theme_ipsum()+
   xlab("Años")+
-  ylab("Cantidad Accidente(n)")+
+  ylab("Cantidad Accidente")+
   labs(color = "Clase")
 
 ggplotly(acc_clase_año_g)
@@ -151,15 +155,15 @@ ggplotly(acc_clase_año_g)
 
 ```{r, echo = FALSE}
 can_acc_mes_22 <- Acci_Barranquilla %>% 
-                  select(ano_accidente, mes_accidente) %>%
-                  group_by(ano_accidente, mes_accidente) %>% 
+                  select(año, mes) %>%
+                  group_by(año, mes) %>% 
                   summarise(cantidad = n()) %>% 
-                  filter(ano_accidente == 2022) %>% 
-                  arrange(mes_accidente)
+                  filter(año == 2022) %>% 
+                  arrange(mes)
 #ordenar meses del año
-can_acc_mes_22$mes_accidente <- factor(can_acc_mes_22$mes_accidente, levels = c("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre")) 
+can_acc_mes_22$mes <- factor(can_acc_mes_22$mes, levels = c("enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre")) 
 
-can_acc_mes_22_g <- ggplot(can_acc_mes_22, aes( x = mes_accidente, y = cantidad, fill = mes_accidente))+
+can_acc_mes_22_g <- ggplot(can_acc_mes_22, aes( x = mes, y = cantidad, fill = mes))+
   geom_bar(stat = "identity", width=0.5)+
   theme(legend.position="none")+
   theme_ipsum() +
@@ -177,13 +181,13 @@ ggplotly(can_acc_mes_22_g)
 # Numero de accidentes por dias de la semana 
 
 ```{r, echo = FALSE}
-acc_sem <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
-                                 group_by(dia_accidente) %>% 
+acc_sem <- Acci_Barranquilla %>% select(año, dia) %>% 
+                                 group_by(dia) %>% 
                                  summarise( cantidad = n()) 
 
-acc_sem$dia_accidente <- factor(acc_sem$dia_accidente, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"))
+acc_sem$dia <- factor(acc_sem$dia, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"))
 
-acc_sem_g <- ggplot(acc_sem, aes(x = dia_accidente, y = cantidad , fill = dia_accidente))+
+acc_sem_g <- ggplot(acc_sem, aes(x = dia, y = cantidad , fill = dia))+
                       geom_bar(stat = "identity", width=0.5)+
   theme(legend.position="none")+
   theme_ipsum()+
@@ -201,13 +205,13 @@ ggplotly(acc_sem_g)
 # Numero de accidentes en dias de la semana por año(desde el año 2015 - 2023)
 
 ```{r, echo = FALSE}
-acc_sem_año <- Acci_Barranquilla %>% select(ano_accidente, dia_accidente) %>% 
-  group_by(ano_accidente, dia_accidente) %>% 
+acc_sem_año <- Acci_Barranquilla %>% select(año, dia) %>% 
+  group_by(año, dia) %>% 
   summarise( cantidad = n())
 #ordenar los dias de la semana
-acc_sem_año$dia_accidente <- factor(acc_sem_año$dia_accidente, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo")) 
+acc_sem_año$dia <- factor(acc_sem_año$dia, levels = c("Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo")) 
 
-acc_sem_año_g <- ggplot(acc_sem_año, aes(x = ano_accidente, y = cantidad , color = dia_accidente))+
+acc_sem_año_g <- ggplot(acc_sem_año, aes(x = año, y = cantidad , color = dia))+
   geom_line()+
   geom_point()+
   theme_ipsum()+
